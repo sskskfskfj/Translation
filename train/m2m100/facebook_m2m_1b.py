@@ -20,9 +20,8 @@ class M2MTrainer:
         wandb.init(project="translation", name="m2m100_1b")
         self.model = M2M100ForConditionalGeneration.from_pretrained(model_name)
         self.tokenizer = M2M100Tokenizer.from_pretrained(model_name)
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.dataset = HuggingfaceParallelData()
-        self.output_dir = "./results/m2m100_1b"
+        self.output_dir = "./model/m2m100_1b"
 
 
     def train(self):
@@ -41,7 +40,7 @@ class M2MTrainer:
             per_device_eval_batch_size=2,
             gradient_accumulation_steps=16,
             max_grad_norm=1.0,
-            learning_rate=5e-5,
+            learning_rate=3e-5,
             warmup_steps=500,
             lr_scheduler_type="cosine",
             weight_decay=0.01,
@@ -56,9 +55,12 @@ class M2MTrainer:
             report_to="wandb",
             run_name="m2m100_1b"
         )
-        
+
+        model = self.model
+        model.config.use_cache = False
+
         trainer = Trainer(
-            model=self.model,
+            model=model,
             args=training_args,
             train_dataset=train_dataset,
             eval_dataset=eval_dataset,
