@@ -1,0 +1,91 @@
+_wandb:
+    value:
+        cli_version: 0.23.0
+        e:
+            yfi5m87zjoyoh9ty974mbx41ptd12t8p:
+                cpu_count: 92
+                cpu_count_logical: 92
+                cudaVersion: "12.8"
+                disk:
+                    /:
+                        total: "2197948469248"
+                        used: "385666211840"
+                email: dongkyun7717@gmail.com
+                executable: /home/ubuntu/data/dkkim/Translation/.venv/bin/python3
+                git:
+                    commit: 99c6b93790b8ed26bd5ccb5d3c618af053883cac
+                    remote: https://github.com/sskskfskfj/Translation.git
+                gpu: NVIDIA A100-SXM4-80GB
+                gpu_count: 8
+                gpu_nvidia:
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "85899345920"
+                      name: NVIDIA A100-SXM4-80GB
+                      uuid: GPU-948104c0-fadc-f29a-397d-e6c90b81ceb4
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "85899345920"
+                      name: NVIDIA A100-SXM4-80GB
+                      uuid: GPU-f57b89ca-d006-0f8c-ee11-f1c2d468679b
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "85899345920"
+                      name: NVIDIA A100-SXM4-80GB
+                      uuid: GPU-3e72fcdd-4717-ef5a-e359-ffcd8c00a1bb
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "85899345920"
+                      name: NVIDIA A100-SXM4-80GB
+                      uuid: GPU-8fb879fc-58be-abd6-81fc-bc5a6f45c7a7
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "85899345920"
+                      name: NVIDIA A100-SXM4-80GB
+                      uuid: GPU-a34fdfe3-6138-dd26-7b35-9cb3b48034a0
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "85899345920"
+                      name: NVIDIA A100-SXM4-80GB
+                      uuid: GPU-2f925151-d76e-745b-dd6b-e6416a7acd14
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "85899345920"
+                      name: NVIDIA A100-SXM4-80GB
+                      uuid: GPU-8e043076-26bf-ca41-1201-2fa7e3471710
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "85899345920"
+                      name: NVIDIA A100-SXM4-80GB
+                      uuid: GPU-4fbeb030-06bf-82e0-9510-2bf4b5e943e5
+                host: workload-019a164b-e26f-7304-a4f0-44316dce5fde
+                memory:
+                    total: "950716977152"
+                os: Linux-5.15.0-139-generic-x86_64-with-glibc2.35
+                program: -m train.m2m100.facebook_m2m_1b
+                python: CPython 3.12.12
+                root: /home/ubuntu/data/dkkim/Translation
+                startedAt: "2025-12-01T06:28:54.823110Z"
+                writerId: yfi5m87zjoyoh9ty974mbx41ptd12t8p
+        m: []
+        python_version: 3.12.12
+        t:
+            "1":
+                - 1
+                - 11
+                - 49
+                - 51
+                - 71
+            "2":
+                - 1
+                - 11
+                - 49
+                - 51
+                - 71
+            "3":
+                - 13
+            "4": 3.12.12
+            "5": 0.23.0
+            "6": 4.57.3
+            "12": 0.23.0
+            "13": linux-x86_64

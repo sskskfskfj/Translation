@@ -73,10 +73,15 @@ class HuggingfaceParallelData:
         tokenized_src = self.tokenizer(examples['korean'], padding='max_length', truncation=True, max_length=512)
         tokenized_tgt = self.tokenizer(examples['english'], padding='max_length', truncation=True, max_length=512)
         
+        # labels에서 padding token을 -100으로 변환 (loss 계산 시 무시됨)
+        pad_token_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else self.tokenizer.eos_token_id
+        labels = tokenized_tgt['input_ids'].copy()
+        labels = [[-100 if token == pad_token_id else token for token in label] for label in labels]
+        
         return {
             'input_ids': tokenized_src['input_ids'],
             'attention_mask': tokenized_src['attention_mask'],
-            'labels': tokenized_tgt['input_ids']
+            'labels': labels
         }
 
 

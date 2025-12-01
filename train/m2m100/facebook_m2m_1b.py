@@ -20,7 +20,6 @@ class M2MTrainer:
         wandb.init(project="translation", name="m2m100_1b")
         self.model = M2M100ForConditionalGeneration.from_pretrained(model_name)
         self.tokenizer = M2M100Tokenizer.from_pretrained(model_name)
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.dataset = HuggingfaceParallelData()
         self.output_dir = "./results/m2m100_1b"
 
@@ -31,7 +30,11 @@ class M2MTrainer:
         train_dataset = dataset_dict['train']
         eval_dataset = dataset_dict['validation']
         
-        data_collator = DataCollatorForSeq2Seq(tokenizer=self.tokenizer, model=self.model, padding=True)
+        data_collator = DataCollatorForSeq2Seq(
+            tokenizer=self.tokenizer, 
+            padding=True,
+            label_pad_token_id=-100
+        )
         
         training_args = TrainingArguments(
             output_dir=self.output_dir,
@@ -41,7 +44,7 @@ class M2MTrainer:
             per_device_eval_batch_size=2,
             gradient_accumulation_steps=16,
             max_grad_norm=1.0,
-            learning_rate=5e-5,
+            learning_rate=3e-5,
             warmup_steps=500,
             lr_scheduler_type="cosine",
             weight_decay=0.01,
@@ -51,14 +54,16 @@ class M2MTrainer:
             save_total_limit=3,
             load_best_model_at_end=True,
             metric_for_best_model="eval_loss",
-            greater_is_better=False,
             bf16=True,
             report_to="wandb",
             run_name="m2m100_1b"
         )
-        
+
+        model = self.model
+        model.config.use_cache = False
+
         trainer = Trainer(
-            model=self.model,
+            model=model,
             args=training_args,
             train_dataset=train_dataset,
             eval_dataset=eval_dataset,
