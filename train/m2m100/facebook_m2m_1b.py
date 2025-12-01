@@ -54,7 +54,6 @@ class M2MTrainer:
             dataloader_num_workers=4
         )
         
-        # Trainer 초기화
         trainer = Trainer(
             model=self.model,
             args=training_args,
