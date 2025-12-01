@@ -12,6 +12,7 @@ tokenizer = M2M100Tokenizer.from_pretrained(model_name)
 
 def translate(text, src_lang, tgt_lang):
     tokenized = tokenizer(text, return_tensors="pt")
+    print(len(tokenized['input_ids'][0]))
     translated = model.generate(**tokenized.to(device), forced_bos_token_id=tokenizer.get_lang_id(tgt_lang))
     return tokenizer.decode(translated[0], skip_special_tokens=True)
 
