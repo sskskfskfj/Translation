@@ -70,8 +70,23 @@ class HuggingfaceParallelData:
 
 
     def tokenize_function(self, examples):
-        tokenized_src = self.tokenizer(examples['korean'], padding='max_length', truncation=True, max_length=512)
-        tokenized_tgt = self.tokenizer(examples['english'], padding='max_length', truncation=True, max_length=512)
+        # 영어를 소스 언어로 토크나이징
+        self.tokenizer.src_lang = "en"
+        tokenized_src = self.tokenizer(
+            examples['english'], 
+            padding='max_length', 
+            truncation=True, 
+            max_length=512
+        )
+        
+        # 한국어를 타겟 언어로 토크나이징
+        self.tokenizer.tgt_lang = "ko"
+        tokenized_tgt = self.tokenizer(
+            examples['korean'], 
+            padding='max_length', 
+            truncation=True, 
+            max_length=512
+        )
         
         return {
             'input_ids': tokenized_src['input_ids'],
@@ -84,4 +99,4 @@ if __name__ == "__main__":
     hf_parallel_data = HuggingfaceParallelData()
 
     dataset = hf_parallel_data.preprocess_dataset()
-    print(dataset)
+    print(dataset["train"][0])
