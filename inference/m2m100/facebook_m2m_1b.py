@@ -6,9 +6,10 @@ import time
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-model_name = "facebook/m2m100_1.2b"
+model_name = "model/m2m100_1b/checkpoint-3145"
+tokenizer_name = "facebook/m2m100_1.2b"
 model = M2M100ForConditionalGeneration.from_pretrained(model_name).to(device)
-tokenizer = M2M100Tokenizer.from_pretrained(model_name)
+tokenizer = M2M100Tokenizer.from_pretrained(tokenizer_name)
 
 def translate(text, src_lang, tgt_lang):
     tokenized = tokenizer(text, return_tensors="pt")

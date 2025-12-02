@@ -7,6 +7,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+
 .Python
 build/
 develop-eggs/
@@ -208,3 +209,4 @@ __marimo__/
 
 
 wandb/
+model/

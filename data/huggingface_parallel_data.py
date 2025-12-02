@@ -7,8 +7,8 @@ import pandas as pd
 class HuggingfaceParallelData:
     def __init__(
         self, 
-        dataset_name="lemon-mint/korean_english_parallel_wiki_augmented_v1",
-        model_name="facebook/m2m100_1.2b"
+        model_name: str,
+        dataset_name="lemon-mint/korean_english_parallel_wiki_augmented_v1"
     ):
         self.dataset = load_dataset(dataset_name, split="train")
         self.tokenizer = M2M100Tokenizer.from_pretrained(model_name)
@@ -99,7 +99,7 @@ class HuggingfaceParallelData:
 
 
 if __name__ == "__main__":
-    hf_parallel_data = HuggingfaceParallelData()
+    hf_parallel_data = HuggingfaceParallelData(model_name="facebook/m2m100_1.2b")
 
     dataset = hf_parallel_data.preprocess_dataset()
     print(dataset["train"][0])
