@@ -2,7 +2,11 @@ from datasets import load_dataset, Dataset, DatasetDict
 from transformers import M2M100Tokenizer
 
 import pandas as pd
+import os
+import dotenv
 
+dotenv.load_dotenv()
+HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
 
 class HuggingfaceParallelData:
     def __init__(
@@ -10,8 +14,8 @@ class HuggingfaceParallelData:
         model_name: str,
         dataset_name="lemon-mint/korean_english_parallel_wiki_augmented_v1"
     ):
-        self.dataset = load_dataset(dataset_name, split="train")
-        self.tokenizer = M2M100Tokenizer.from_pretrained(model_name)
+        self.dataset = load_dataset(dataset_name, split="train", token=HUGGINGFACE_TOKEN)
+        self.tokenizer = M2M100Tokenizer.from_pretrained(model_name, token=HUGGINGFACE_TOKEN)
 
 
     def preprocess_dataset(self) -> DatasetDict:
@@ -99,7 +103,7 @@ class HuggingfaceParallelData:
 
 
 if __name__ == "__main__":
-    hf_parallel_data = HuggingfaceParallelData(model_name="facebook/m2m100_1.2b")
+    hf_parallel_data = HuggingfaceParallelData(model_name="facebook/m2m100_418M")
 
     dataset = hf_parallel_data.preprocess_dataset()
-    print(dataset["train"][0])
+    print(dataset)
