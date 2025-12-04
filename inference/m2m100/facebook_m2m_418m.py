@@ -6,11 +6,14 @@ import time
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-model_name = "facebook/m2m100_418m"
-model = M2M100ForConditionalGeneration.from_pretrained(model_name).to(device)
-tokenizer = M2M100Tokenizer.from_pretrained(model_name)
+# checkpoint에서 모델과 토크나이저 로드
+# facebook/m2m100_418m
+checkpoint_path = "facebook/m2m100_418m"
+model = M2M100ForConditionalGeneration.from_pretrained(checkpoint_path, local_files_only=True).to(device)
+tokenizer = M2M100Tokenizer.from_pretrained(checkpoint_path, local_files_only=True)
 
 def translate(text, src_lang, tgt_lang):
+    tokenizer.src_lang = src_lang
     tokenized = tokenizer(text, return_tensors="pt")
     translated = model.generate(**tokenized.to(device), forced_bos_token_id=tokenizer.get_lang_id(tgt_lang))
     return tokenizer.decode(translated[0], skip_special_tokens=True)

@@ -39,9 +39,6 @@ class M2MTrainer:
         train_dataset = dataset_dict['train']
         eval_dataset = dataset_dict['validation']
         
-
-        compute_metrics = create_compute_metrics(self.tokenizer)
-        
         data_collator = DataCollatorForSeq2Seq(
             tokenizer=self.tokenizer,
             model=self.model,
@@ -81,90 +78,11 @@ class M2MTrainer:
             eval_dataset=eval_dataset,
             data_collator=data_collator,
             tokenizer=self.tokenizer,
-            compute_metrics=compute_metrics,
         )
         
         trainer.train()
         trainer.save_model(self.output_dir)
         self.tokenizer.save_pretrained(self.output_dir)
-
-
-def create_compute_metrics(tokenizer):
-
-    def compute_metrics(eval_pred):
-        predictions, labels = eval_pred
-
-        # logits → predicted ids
-        if predictions.ndim == 3:
-            preds = predictions.argmax(-1)
-        else:
-            preds = predictions
-        
-        # numpy array를 리스트로 변환하고 -100 제거
-        pred_str = []
-        for p in preds:
-            # -100이 아닌 토큰만 필터링
-            if isinstance(p, np.ndarray):
-                p = p[p != -100]
-            else:
-                p = [token for token in p if token != -100]
-            
-            decoded = tokenizer.decode(p, skip_special_tokens=True)
-            pred_str.append(decoded if decoded.strip() else " ")  # 빈 문자열 방지
-        
-        label_str = []
-        for l in labels:
-            # -100이 아닌 토큰만 필터링
-            if isinstance(l, np.ndarray):
-                l = l[l != -100]
-            else:
-                l = [token for token in l if token != -100]
-            
-            decoded = tokenizer.decode(l, skip_special_tokens=True)
-            label_str.append(decoded if decoded.strip() else " ")  # 빈 문자열 방지
-        
-        # 샘플 수 확인
-        n = len(pred_str)
-        if n == 0:
-            return {
-                "bleu": 0.0,
-                "rouge1": 0.0,
-                "rouge2": 0.0,
-                "rougeL": 0.0
-            }
-        
-        # BLEU 계산
-        bleu = BLEU()
-        references = [[l] for l in label_str]
-        bleu_score = bleu.corpus_score(pred_str, references).score
-        
-        # ROUGE 계산
-        scorer = rouge_scorer.RougeScorer(['rouge1', 'rouge2', 'rougeL'], use_stemmer=True)
-        rouge_scores = {"rouge1": 0.0, "rouge2": 0.0, "rougeL": 0.0}
-        
-        for pred, label in zip(pred_str, label_str):
-            try:
-                r = scorer.score(label, pred)
-                rouge_scores['rouge1'] += r['rouge1'].fmeasure
-                rouge_scores['rouge2'] += r['rouge2'].fmeasure
-                rouge_scores['rougeL'] += r['rougeL'].fmeasure
-            except Exception:
-                # 빈 문자열 등으로 인한 오류 무시
-                continue
-        
-        # 평균 계산
-        for k in rouge_scores:
-            rouge_scores[k] /= n
-        
-        return {
-            "bleu": float(bleu_score),
-            "rouge1": float(rouge_scores['rouge1']),
-            "rouge2": float(rouge_scores['rouge2']),
-            "rougeL": float(rouge_scores['rougeL'])
-        }
-    
-    return compute_metrics
-
 
 
 if __name__ == "__main__":
