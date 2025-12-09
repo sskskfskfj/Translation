@@ -1,14 +1,14 @@
 from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer
 
 import torch
-import time
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # checkpoint에서 모델과 토크나이저 로드
 # facebook/m2m100_418m
-checkpoint_path = "facebook/m2m100_418m"
+checkpoint_original_path = "facebook/m2m100_418m"
+checkpoint_path = "model/m2m100_418m/checkpoint-3145"
 model = M2M100ForConditionalGeneration.from_pretrained(checkpoint_path, local_files_only=True).to(device)
 tokenizer = M2M100Tokenizer.from_pretrained(checkpoint_path, local_files_only=True)
 
@@ -28,9 +28,7 @@ if __name__ == "__main__":
     based solely on attention mechanisms, dispensing with recurrence and convolutions
     entirely.     
     """
-    start_time = time.time()
+
     ko_text = translate(en_text, src_lang="en", tgt_lang="ko")
-    end_time = time.time()
-    print(f"Time taken: {end_time - start_time} seconds")
 
     print(ko_text)
