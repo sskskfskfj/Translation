@@ -8,7 +8,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 # checkpoint에서 모델과 토크나이저 로드
 # facebook/m2m100_418m
 checkpoint_original_path = "facebook/m2m100_418m"
-checkpoint_path = "model/m2m100_418m/checkpoint-3145"
+checkpoint_path = "model/m2m100_418m_trained_aihub_en_ko/checkpoint-1047"
 model = M2M100ForConditionalGeneration.from_pretrained(checkpoint_path, local_files_only=True).to(device)
 tokenizer = M2M100Tokenizer.from_pretrained(checkpoint_path, local_files_only=True)
 
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     performing models also connect the encoder and decoder through an attention
     mechanism. We propose a new simple network architecture, the Transformer,
     based solely on attention mechanisms, dispensing with recurrence and convolutions
-    entirely.     
+    entirely. 
     """
 
     ko_text = translate(en_text, src_lang="en", tgt_lang="ko")

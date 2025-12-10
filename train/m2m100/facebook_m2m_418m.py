@@ -9,6 +9,7 @@ from datasets import Dataset, DatasetDict
 from data.huggingface_parallel_data import HuggingfaceParallelData
 from sacrebleu import BLEU
 from rouge_score import rouge_scorer
+from data.aihub_en_ko_data import AihubEnKoData
 
 import torch
 import wandb
@@ -29,15 +30,12 @@ class M2MTrainer:
         self.model.config.use_cache = False
         self.tokenizer = M2M100Tokenizer.from_pretrained(model_name, token=HUGGINGFACE_TOKEN)
 
-        self.dataset = HuggingfaceParallelData(model_name=model_name)
+        self.dataset = AihubEnKoData()
         self.output_dir = output_dir
 
 
     def train(self):
-        dataset_dict = self.dataset.preprocess_dataset()
-        
-        train_dataset = dataset_dict['train']
-        eval_dataset = dataset_dict['validation']
+        train_dataset, validation_dataset, test_dataset = self.dataset.preprocess_aihub_en_ko_data()
         
         data_collator = DataCollatorForSeq2Seq(
             tokenizer=self.tokenizer,
@@ -51,10 +49,10 @@ class M2MTrainer:
             overwrite_output_dir=True,
             num_train_epochs=5,
             per_device_train_batch_size=4,
-            per_device_eval_batch_size=2,
+            per_device_eval_batch_size=4,
             gradient_accumulation_steps=8,
             max_grad_norm=0.8,
-            learning_rate=1e-4,
+            learning_rate=1e-5,
             warmup_ratio=0.05,
             lr_scheduler_type="cosine",
             weight_decay=0.02,
@@ -68,14 +66,14 @@ class M2MTrainer:
             greater_is_better=False,
             bf16=True,
             report_to="wandb",
-            run_name=self.model_name
+            run_name="m2m100_418m_trained_on_aihub_en_ko"
         )
 
         trainer = Trainer(
             model=self.model,
             args=training_args,
             train_dataset=train_dataset,
-            eval_dataset=eval_dataset,
+            eval_dataset=validation_dataset,
             data_collator=data_collator,
             tokenizer=self.tokenizer,
         )
@@ -86,6 +84,6 @@ class M2MTrainer:
 
 
 if __name__ == "__main__":
-    model_name = "facebook/m2m100_418M"
-    trainer = M2MTrainer(model_name=model_name, output_dir="./model/m2m100_418m")
+    model_name = "model/m2m100_418m/checkpoint-3145"
+    trainer = M2MTrainer(model_name=model_name, output_dir="./model/m2m100_418m_trained_aihub_en_ko")
     trainer.train()

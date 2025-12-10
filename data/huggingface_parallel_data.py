@@ -1,5 +1,5 @@
 from datasets import load_dataset, Dataset, DatasetDict
-from transformers import M2M100Tokenizer
+from transformers import AutoTokenizer
 
 import pandas as pd
 import os
@@ -15,12 +15,13 @@ class HuggingfaceParallelData:
         dataset_name="lemon-mint/korean_english_parallel_wiki_augmented_v1"
     ):
         self.dataset = load_dataset(dataset_name, split="train", token=HUGGINGFACE_TOKEN)
-        self.tokenizer = M2M100Tokenizer.from_pretrained(model_name, token=HUGGINGFACE_TOKEN)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, token=HUGGINGFACE_TOKEN, src_lang="eng_Latn", tgt_lang="kor_Hang")
 
 
     def preprocess_dataset(self) -> DatasetDict:
         df = self.dataset.to_pandas()
-        filtered_df = df[df['score'] >= 0.9].reset_index(drop=True)
+        filtered_df = df[df['score'] >= 0.88].reset_index(drop=True)
+        filtered_df = filtered_df[filtered_df["english"].str.len() <= 1200].reset_index(drop=True)
         filtered_df.drop(columns = ["score"], axis=1, inplace=True)
         
         expanded_rows = []
@@ -35,6 +36,10 @@ class HuggingfaceParallelData:
                 continue
             
             for i in range(len(ko_splits)):
+                min_length = 100
+                if len(en_splits[i]) < min_length:
+                    continue
+                
                 new_row = row.copy()
                 if 'korean' in row:
                     new_row['korean'] = ko_splits[i]
@@ -74,36 +79,41 @@ class HuggingfaceParallelData:
 
 
     def tokenize_function(self, examples):
-        self.tokenizer.src_lang = "en"
         tokenized_src = self.tokenizer(
             examples['english'], 
-            padding='max_length', 
+            padding=False, 
             truncation=True, 
-            max_length=512
+            max_length=256
         )
         
-        self.tokenizer.tgt_lang = "ko"
         tokenized_tgt = self.tokenizer(
             examples['korean'], 
-            padding='max_length', 
+            padding=False, 
             truncation=True, 
-            max_length=512
+            max_length=256
         )
-        
-        # labels에서 padding token을 -100으로 변환 (loss 계산 시 무시됨)
-        pad_token_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else self.tokenizer.eos_token_id
+
         labels = tokenized_tgt['input_ids'].copy()
+        pad_token_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else self.tokenizer.eos_token_id
         labels = [[-100 if token == pad_token_id else token for token in label] for label in labels]
         
         return {
             'input_ids': tokenized_src['input_ids'],
             'attention_mask': tokenized_src['attention_mask'],
-            'labels': labels
+            'labels': labels 
         }
 
 
 if __name__ == "__main__":
-    hf_parallel_data = HuggingfaceParallelData(model_name="facebook/m2m100_418M")
-
+    hf_parallel_data = HuggingfaceParallelData(model_name="facebook/nllb-200-distilled-600M")
     dataset = hf_parallel_data.preprocess_dataset()
     print(dataset)
+
+    # df = dataset["train"].to_pandas()   
+    # sample_1100 = [text for text in df[df["english"].str.len() >= 1100]["english"]]
+    # print(f"length of sample_1100: {len(sample_1100)}")
+
+    # for sample in sample_1100:
+    #     tokenized_length = hf_parallel_data.tokenizer(sample, return_tensors="pt")["input_ids"].size(1)
+    #     if tokenized_length > 256:     
+    #         print(tokenized_length)
