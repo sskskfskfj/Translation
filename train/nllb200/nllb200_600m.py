@@ -11,6 +11,8 @@ import torch
 import wandb
 import os
 import dotenv
+import numpy as np
+import sacrebleu
 
 
 dotenv.load_dotenv()
@@ -52,21 +54,25 @@ class NLLB200Trainer:
         
         training_args = TrainingArguments(
             output_dir=self.output_dir,
-            eval_strategy="epoch",
-            save_strategy="epoch",
+            eval_strategy="steps",
+            save_strategy="steps",
+            eval_steps=500,
+            save_steps=500,
             save_total_limit=3,
 
             metric_for_best_model="eval_loss",
+            greater_is_better=True,
+            load_best_model_at_end=True,
             bf16=True,
             overwrite_output_dir=True,
 
-            num_train_epochs=5,
+            num_train_epochs=3,
             per_device_train_batch_size=4,
             per_device_eval_batch_size=4,
             gradient_accumulation_steps=8,
 
-            max_grad_norm=1.0,
-            learning_rate=2e-5,
+            max_grad_norm=0.8,
+            learning_rate=5e-5,
             warmup_ratio=0.1,
             lr_scheduler_type="cosine",
             weight_decay=0.01,

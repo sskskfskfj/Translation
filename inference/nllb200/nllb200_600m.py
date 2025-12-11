@@ -5,8 +5,9 @@ import torch
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-tokenizer = AutoTokenizer.from_pretrained("facebook/nllb-200-distilled-600M", src_lang="eng_Latn", tgt_lang="kor_Hang")
-model = AutoModelForSeq2SeqLM.from_pretrained("facebook/nllb-200-distilled-600M").to(device)
+checkpoint = "model/nllb200_600m/checkpoint-6972"
+tokenizer = AutoTokenizer.from_pretrained(checkpoint, src_lang="eng_Latn", tgt_lang="kor_Hang")
+model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint).to(device)
 
 if __name__ == "__main__":
     prompt = """

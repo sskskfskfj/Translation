@@ -1,6 +1,5 @@
 from datasets import load_dataset
-from transformers import M2M100Tokenizer
-
+from transformers import AutoTokenizer
 import os
 import dotenv
 
@@ -10,10 +9,13 @@ HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
 
 class AihubEnKoData:
     def __init__(self):
-        self.model_name = "model/m2m100_418m/checkpoint-3145"
-        self.tokenizer = M2M100Tokenizer.from_pretrained(self.model_name, token=HUGGINGFACE_TOKEN)
-        self.tokenizer.src_lang = "en"
-        self.tokenizer.tgt_lang = "ko"
+        self.model_name = "facebook/nllb-200-distilled-600M"
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            self.model_name, 
+            src_lang="eng_Latn", 
+            tgt_lang="kor_Hang", 
+            token=HUGGINGFACE_TOKEN
+        )
 
 
     def load_aihub_en_ko_data(self):
@@ -27,11 +29,12 @@ class AihubEnKoData:
         dataset = dataset.train_test_split(test_size=0.1)
         test_valid_dataset = dataset["test"].train_test_split(test_size=0.5, seed=42)
 
-        train_dataset = dataset["train"].map(self.tokenize_function, batched=True, remove_columns=dataset["train"].column_names, num_proc=4)
-        test_dataset = test_valid_dataset["train"].map(self.tokenize_function, batched=True, remove_columns=test_valid_dataset["train"].column_names, num_proc=4)
-        validation_dataset = test_valid_dataset["test"].map(self.tokenize_function, batched=True, remove_columns=test_valid_dataset["test"].column_names, num_proc=4)
+        return dataset["train"]
+        # train_dataset = dataset["train"].map(self.tokenize_function, batched=True, remove_columns=dataset["train"].column_names, num_proc=4)
+        # test_dataset = test_valid_dataset["train"].map(self.tokenize_function, batched=True, remove_columns=test_valid_dataset["train"].column_names, num_proc=4)
+        # validation_dataset = test_valid_dataset["test"].map(self.tokenize_function, batched=True, remove_columns=test_valid_dataset["test"].column_names, num_proc=4)
 
-        return train_dataset, validation_dataset, test_dataset
+        # return train_dataset, validation_dataset, test_dataset
 
 
     def tokenize_function(self, examples):
@@ -52,7 +55,7 @@ class AihubEnKoData:
 if __name__ == "__main__":
     aihub_en_ko_data = AihubEnKoData()
     # train_dataset, test_dataset, validation_dataset = aihub_en_ko_data.preprocess_aihub_en_ko_data()
-    tokenizer = M2M100Tokenizer.from_pretrained(aihub_en_ko_data.model_name, token=HUGGINGFACE_TOKEN)
-    # print(train_dataset)
-    # print(test_dataset)
-    # print(validation_dataset)
+    tokenizer = aihub_en_ko_data.tokenizer
+    dataset = aihub_en_ko_data.preprocess_aihub_en_ko_data()
+
+    print(dataset["en"][0])
